@@ -23,7 +23,7 @@ fun main(cmdArgs: Array<String>) {
 fun Application.main() {
     routing {
         get("/ping") {
-            call.respond(HttpStatusCode.OK, "OK")
+            call.respond(HttpStatusCode.OK, "pong")
         }
     }
 }
