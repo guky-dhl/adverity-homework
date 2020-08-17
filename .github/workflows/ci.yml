@@ -27,3 +27,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: guky/homework
           tag_with_ref: true
+      - name: OpenShift Action
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: 'latest'
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+          parameters: '{"apitoken": "${{ secrets.API_TOKEN }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            'import-image homework'
+
