@@ -1,5 +1,9 @@
+import tanvd.kosogor.proxy.shadowJar as sJar
+
 plugins {
     kotlin("jvm") version "1.3.72"
+    id("com.github.johnrengelman.shadow") version "5.1.0"
+    id("tanvd.kosogor") version "1.0.7" apply true
 }
 
 group = "cool.db"
@@ -19,10 +23,15 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation(libs.exposed.core)
-    implementation(libs.exposed.jdbc)
-    implementation(libs.exposed.`java-time`)
+    implementation(Libs.ktor.core)
+    implementation(Libs.ktor.netty)
+
+    implementation(Libs.exposed.core)
+    implementation(Libs.exposed.jdbc)
+    implementation(Libs.exposed.`java-time`)
     implementation("cool.db:exposed-entities:0.0.3")
+
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:4.1.3")
     testImplementation("io.mockk:mockk:1.9.3")
@@ -35,6 +44,19 @@ tasks {
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
+    }
+}
+
+tasks {
+    shadowJar {
+        dependsOn(build)
+    }
+}
+
+sJar {
+    jar {
+        archiveName = "homework.jar"
+        mainClass = "io.ktor.server.netty.EngineMain"
     }
 }
 

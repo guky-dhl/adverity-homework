@@ -1,15 +1,22 @@
-object versions {
-    val exposed = "0.26.1"
-    val kotlin = "1.3.72"
+object Versions {
+    const val exposed = "0.26.1"
+    const val kotlin = "1.3.72"
+    const val ktor = "1.3.2"
 }
 
-object libs {
+object Libs {
     //database
     object exposed {
-        val core = "org.jetbrains.exposed:exposed-core:${versions.exposed}"
-        val jdbc = "org.jetbrains.exposed:exposed-jdbc:${versions.exposed}"
-        val `java-time` = "org.jetbrains.exposed:exposed-java-time:${versions.exposed}"
+        const val core = "org.jetbrains.exposed:exposed-core:${Versions.exposed}"
+        const val jdbc = "org.jetbrains.exposed:exposed-jdbc:${Versions.exposed}"
+        const val `java-time` = "org.jetbrains.exposed:exposed-java-time:${Versions.exposed}"
     }
 
     val postgre = "org.postgresql:postgresql:42.2.6"
+
+    object ktor {
+        const val core = "io.ktor:ktor-server-core:${Versions.ktor}"
+        const val netty = "io.ktor:ktor-server-netty:${Versions.ktor}"
+        const val serialization = "io.ktor:ktor-serialization:${Versions.ktor}"
+    }
 }
