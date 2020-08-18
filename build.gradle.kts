@@ -31,11 +31,15 @@ dependencies {
     implementation(Libs.exposed.`java-time`)
     implementation("cool.db:exposed-entities:0.0.3")
 
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
+
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
     testImplementation("io.kotest:kotest-assertions-core-jvm:4.1.3")
     testImplementation("io.mockk:mockk:1.9.3")
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
+    testImplementation("com.h2database:h2:1.4.199")
 }
 
 tasks {
