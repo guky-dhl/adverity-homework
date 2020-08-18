@@ -1,7 +1,8 @@
 import tanvd.kosogor.proxy.shadowJar as sJar
 
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version Versions.kotlin
+    kotlin("plugin.serialization") version Versions.kotlin
     id("com.github.johnrengelman.shadow") version "5.1.0"
     id("tanvd.kosogor") version "1.0.7" apply true
 }
@@ -23,9 +24,12 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
+    // rest api
     implementation(Libs.ktor.core)
     implementation(Libs.ktor.netty)
+    implementation(Libs.ktor.serialization)
 
+    // db
     implementation(Libs.exposed.core)
     implementation(Libs.exposed.jdbc)
     implementation(Libs.exposed.`java-time`)
@@ -33,7 +37,12 @@ dependencies {
     implementation(Libs.postgre)
     implementation("com.h2database:h2:1.4.199")
 
+    // json
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.20.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0") // JVM dependency
+
     implementation("org.koin:koin-core:2.1.6")
+
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
