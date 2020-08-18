@@ -12,7 +12,6 @@ class PingController(application: Application, db: Database) {
     init {
         application.routing {
             get("/ping") {
-                val connector = db.connector().connection
                 call.respond(HttpStatusCode.OK, "OK")
             }
         }
