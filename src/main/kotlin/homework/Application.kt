@@ -20,6 +20,7 @@ fun Application.main() {
     startKoin {
         printLogger()
         modules(mainModule(this@main), databaseModule)
+
     }
 
 }
