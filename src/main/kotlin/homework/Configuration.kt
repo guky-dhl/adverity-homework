@@ -1,8 +1,10 @@
 package homework
 
 import homework.api.PingController
+import homework.domain.LoadStatistic
 import homework.domain.MarketingCampaignStatistic
 import homework.domain.MarketingCampaignStatisticRepository
+import homework.infrastructure.dropCreate
 import homework.infrastructure.get
 import homework.infrastructure.isProd
 import io.ktor.application.Application
@@ -18,6 +20,7 @@ fun mainModule(application: Application) = module(createdAtStart = true) {
     single { application.environment }
     single { MarketingCampaignStatisticRepository() }
     single { PingController(get(), get()) }
+    single { LoadStatistic(get()) }
 }
 
 @OptIn(KtorExperimentalAPI::class)
@@ -45,7 +48,6 @@ val databaseModule = module {
 
 private fun recreateTables() {
     transaction {
-        SchemaUtils.drop(MarketingCampaignStatistic.Table)
-        SchemaUtils.create(MarketingCampaignStatistic.Table)
+        SchemaUtils.dropCreate(MarketingCampaignStatistic.Table)
     }
 }
