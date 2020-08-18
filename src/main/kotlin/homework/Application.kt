@@ -18,10 +18,8 @@ fun main(cmdArgs: Array<String>) {
 @KtorExperimentalAPI
 fun Application.main() {
     startKoin {
-        // use Koin logger
         printLogger()
-        // declare modules
-        modules(mainModule(this@main))
+        modules(mainModule(this@main), databaseModule)
     }
 
 }
