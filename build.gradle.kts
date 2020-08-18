@@ -30,6 +30,7 @@ dependencies {
     implementation(Libs.exposed.jdbc)
     implementation(Libs.exposed.`java-time`)
     implementation("cool.db:exposed-entities:0.0.3")
+    implementation(Libs.postgre)
     implementation("com.h2database:h2:1.4.199")
 
     implementation("org.koin:koin-core:2.1.6")
