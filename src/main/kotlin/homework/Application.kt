@@ -1,15 +1,11 @@
 package homework
 
 import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
-import io.ktor.routing.get
-import io.ktor.routing.routing
 import io.ktor.server.engine.commandLineEnvironment
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
+import org.koin.core.context.startKoin
 
 
 fun main(cmdArgs: Array<String>) {
@@ -21,9 +17,11 @@ fun main(cmdArgs: Array<String>) {
 
 @KtorExperimentalAPI
 fun Application.main() {
-    routing {
-        get("/ping") {
-            call.respond(HttpStatusCode.OK, "OK")
-        }
+    startKoin {
+        // use Koin logger
+        printLogger()
+        // declare modules
+        modules(mainModule(this@main))
     }
+
 }

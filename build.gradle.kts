@@ -31,6 +31,7 @@ dependencies {
     implementation(Libs.exposed.`java-time`)
     implementation("cool.db:exposed-entities:0.0.3")
 
+    implementation("org.koin:koin-core:2.1.6")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
