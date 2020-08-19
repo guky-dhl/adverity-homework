@@ -1,7 +1,9 @@
 package homework.domain
 
-import homework.api.dto.Field.DateField
-import homework.api.dto.Field.StringField
+import homework.api.dto.Field
+import homework.api.dto.Field.*
+import homework.api.dto.Field.AggregateField.AggregationType.*
+import homework.api.dto.Field.CalculatedField.CalculationType.DIVIDE
 import homework.api.dto.Filter
 import homework.api.dto.Filter.DateFilter
 import homework.api.dto.Filter.StringFilter
@@ -13,14 +15,57 @@ import kotlin.reflect.KProperty1
 
 class MarketingDataRequestBuilder {
     private var filters: MutableSet<Filter<*>> = mutableSetOf()
+    private var dimensions: MutableSet<Field<*>> =
+        mutableSetOf()
 
     operator fun Filter<*>.unaryPlus() {
         filters.add(this)
     }
 
+    operator fun Field<*>.unaryPlus() {
+        dimensions.add(this)
+    }
+
+    operator fun Field<Long>.div(second: Field<Long>): Field<Long> {
+        return CalculatedField(DIVIDE, this, second)
+    }
+
+    fun selectString(property: KProperty1<MarketingCampaignStatistic, String>) {
+        dimensions.add(StringField(property.name))
+    }
+
+    fun selectDate(property: KProperty1<MarketingCampaignStatistic, LocalDate>) {
+        dimensions.add(DateField(property.name))
+    }
+
+    fun selectLong(property: KProperty1<MarketingCampaignStatistic, Long>) {
+        dimensions.add(LongField(property.name))
+    }
+
+    fun sum(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField {
+        val field = AggregateField(LongField(property.name), SUM)
+        return field
+    }
+
+    fun count(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField {
+        val field = AggregateField(LongField(property.name), COUNT)
+        return field
+    }
+
+    fun div(property: KProperty1<MarketingCampaignStatistic, Long>): Boolean {
+        return dimensions.add(AggregateField(LongField(property.name), COUNT))
+    }
+
+    fun avg(property: KProperty1<MarketingCampaignStatistic, Long>) {
+        dimensions.add(AggregateField(LongField(property.name), AVERAGE))
+    }
+
     fun build(init: MarketingDataRequestBuilder.() -> Unit): MarketingDataRequest {
         this.init()
-        return MarketingDataRequest(filters)
+        if (dimensions.isEmpty()) {
+            dimensions.add(StringField(MarketingCampaignStatistic::dataSource.name))
+        }
+        return MarketingDataRequest(dimensions, filters)
     }
 }
 

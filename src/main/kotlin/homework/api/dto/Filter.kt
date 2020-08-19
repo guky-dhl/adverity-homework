@@ -4,14 +4,10 @@ package homework.api.dto
 
 import homework.api.dto.Field.*
 import homework.api.dto.FilterOperation.*
-import homework.domain.MarketingCampaignStatistic
-import homework.infrastructure.json
 import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.`java-time`.dateLiteral
+import org.jetbrains.exposed.sql.Op
 import java.time.LocalDate
 
 @Serializable
@@ -97,88 +93,5 @@ sealed class Filter<T : Comparable<T>> {
         init {
             validate()
         }
-    }
-}
-
-@Serializable
-sealed class Field<T> {
-    abstract val columnName: String?
-    abstract val value: T?
-
-    protected fun validate() {
-        check(hasSingleNotNullParam()) { "Please specify only 1 param" }
-    }
-
-    private fun hasSingleNotNullParam() = setOf(columnName, value)
-        .count { it != null } == 1
-
-
-    abstract fun asColumn(): ExpressionWithColumnType<T>
-    abstract fun asLiteral(): ExpressionWithColumnType<T>
-
-    fun asExpression(): ExpressionWithColumnType<T> {
-        return columnName?.let {
-            asColumn()
-        } ?: asLiteral()
-    }
-
-    @Serializable
-    data class StringField(
-        override val columnName: String? = null,
-        override val value: String? = null
-    ) :
-        Field<String>() {
-        init {
-            validate()
-        }
-
-        override fun asColumn(): ExpressionWithColumnType<String> {
-            val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
-            check(columnFromFieldName.columnType is StringColumnType) { "Column[$columnName] is not string" }
-            @Suppress("UNCHECKED_CAST")
-            return columnFromFieldName as ExpressionWithColumnType<String>
-        }
-
-        override fun asLiteral(): ExpressionWithColumnType<String> = stringLiteral(value!!)
-    }
-
-    @Serializable
-    data class DateField(
-        override val columnName: String? = null,
-        override val value: @ContextualSerialization LocalDate? = null
-    ) :
-        Field<LocalDate>() {
-        init {
-            validate()
-        }
-
-        override fun asColumn(): ExpressionWithColumnType<LocalDate> {
-            val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
-            check(columnFromFieldName.columnType is IDateColumnType) { "Column[$columnName] is not date type" }
-            @Suppress("UNCHECKED_CAST")
-            return columnFromFieldName as ExpressionWithColumnType<LocalDate>
-        }
-
-        override fun asLiteral(): ExpressionWithColumnType<LocalDate> = dateLiteral(value!!)
-    }
-
-    @Serializable
-    data class LongField(
-        override val columnName: String? = null,
-        override val value: Long? = null
-    ) :
-        Field<Long>() {
-        init {
-            validate()
-        }
-
-        override fun asColumn(): ExpressionWithColumnType<Long> {
-            val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
-            check(columnFromFieldName.columnType is LongColumnType) { "Column[$columnName] is not long type" }
-            @Suppress("UNCHECKED_CAST")
-            return columnFromFieldName as ExpressionWithColumnType<Long>
-        }
-
-        override fun asLiteral(): ExpressionWithColumnType<Long> = longLiteral(value!!)
     }
 }
