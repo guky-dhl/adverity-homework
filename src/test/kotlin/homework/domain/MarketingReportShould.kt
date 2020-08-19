@@ -22,7 +22,7 @@ internal class MarketingReportShould : RepositoryTest() {
     val impressionsMultiplicand = 100L
 
     @TestSubject
-    val report = MarketingReport(marketingStatistics)
+    val report = MarketingReport()
 
     init {
         inTestTransaction {
@@ -36,6 +36,28 @@ internal class MarketingReportShould : RepositoryTest() {
     }
 
     @Nested
+    inner class GroupBy {
+        @Test
+        fun `by columns and aggregate`() {
+            inTestTransaction {
+                val by = report.by(
+                    marketingDataRequest {
+                        +selectString(MarketingCampaignStatistic::dataSource)
+                        +sum(MarketingCampaignStatistic::impressions)
+                        groupBy(
+                            selectString(MarketingCampaignStatistic::dataSource)
+                        )
+                    }
+                )
+                by.result.size shouldBe 1
+                by.result.first().toList()[0] shouldBe dataSource
+                by.result.first()
+                    .toList()[1]!! shouldBe (1..statsRecordCount).sumBy { it.toInt() * impressionsMultiplicand.toInt() }
+            }
+        }
+    }
+
+    @Nested
     inner class Dimensions {
         @Test
         fun `only requested fields`() {
@@ -43,9 +65,9 @@ internal class MarketingReportShould : RepositoryTest() {
             inTestTransaction {
                 val by = report.by(
                     marketingDataRequest {
-                        selectString(MarketingCampaignStatistic::dataSource)
-                        selectDate(MarketingCampaignStatistic::at)
-                        selectLong(MarketingCampaignStatistic::clicks)
+                        +selectString(MarketingCampaignStatistic::dataSource)
+                        +selectDate(MarketingCampaignStatistic::at)
+                        +selectLong(MarketingCampaignStatistic::clicks)
                     }
                 )
                 by.result.size shouldBe statsRecordCount
@@ -58,7 +80,6 @@ internal class MarketingReportShould : RepositoryTest() {
 
         @Test
         fun `aggregated sum dimension`() {
-            val selectedFieldCount = 3
             inTestTransaction {
                 val by = report.by(
                     marketingDataRequest {

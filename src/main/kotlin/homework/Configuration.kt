@@ -24,7 +24,7 @@ fun mainModule(application: Application) = module(createdAtStart = true) {
     single { PingController(get(), get()) }
     single { LoadStatistic(get()) }
     single { MarketingStatisticController(get(), get()) }
-    single { MarketingReport(get()) }
+    single { MarketingReport() }
 }
 
 @OptIn(KtorExperimentalAPI::class)

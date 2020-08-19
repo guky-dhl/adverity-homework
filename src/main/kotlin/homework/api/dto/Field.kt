@@ -13,7 +13,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.times
 import org.jetbrains.exposed.sql.`java-time`.dateLiteral
 import java.time.LocalDate
 
-@Serializable
+//@Serializable
 sealed class Field<T>() {
     abstract val columnName: String?
     abstract val value: T?
@@ -35,7 +35,9 @@ sealed class Field<T>() {
         } ?: asLiteral()
     }
 
-    @Serializable
+    open fun isColumn() = columnName != null
+
+    //@Serializable
     data class StringField(
         override val columnName: String? = null,
         override val value: String? = null
@@ -55,7 +57,7 @@ sealed class Field<T>() {
         override fun asLiteral(): ExpressionWithColumnType<String> = stringLiteral(value!!)
     }
 
-    @Serializable
+    //@Serializable
     data class DateField(
         override val columnName: String? = null,
         override val value: @ContextualSerialization LocalDate? = null
@@ -75,7 +77,7 @@ sealed class Field<T>() {
         override fun asLiteral(): ExpressionWithColumnType<LocalDate> = dateLiteral(value!!)
     }
 
-    @Serializable
+    //@Serializable
     data class LongField(
         override val columnName: String? = null,
         override val value: Long? = null
@@ -95,7 +97,7 @@ sealed class Field<T>() {
         override fun asLiteral(): ExpressionWithColumnType<Long> = longLiteral(value!!)
     }
 
-    @Serializable
+    //@Serializable
     data class AggregateField(
         val field: Field<Long>,
         val aggregationType: AggregationType = AggregationType.SUM
@@ -138,7 +140,7 @@ sealed class Field<T>() {
         }
     }
 
-    @Serializable
+    //@Serializable
     data class CalculatedField(
         val calculationType: CalculationType = CalculationType.PLUS,
         val first: Field<Long>,

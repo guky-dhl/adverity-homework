@@ -17,6 +17,8 @@ class MarketingDataRequestBuilder {
     private var filters: MutableSet<Filter<*>> = mutableSetOf()
     private var dimensions: MutableSet<Field<*>> =
         mutableSetOf()
+    private var groupBy: MutableSet<Field<*>> =
+        mutableSetOf()
 
     operator fun Filter<*>.unaryPlus() {
         filters.add(this)
@@ -30,42 +32,36 @@ class MarketingDataRequestBuilder {
         return CalculatedField(DIVIDE, this, second)
     }
 
-    fun selectString(property: KProperty1<MarketingCampaignStatistic, String>) {
-        dimensions.add(StringField(property.name))
+    fun groupBy(vararg field: Field<*>) {
+        groupBy.addAll(field)
     }
 
-    fun selectDate(property: KProperty1<MarketingCampaignStatistic, LocalDate>) {
-        dimensions.add(DateField(property.name))
-    }
+    fun selectString(property: KProperty1<MarketingCampaignStatistic, String>): StringField = StringField(property.name)
 
-    fun selectLong(property: KProperty1<MarketingCampaignStatistic, Long>) {
-        dimensions.add(LongField(property.name))
-    }
+    fun selectDate(property: KProperty1<MarketingCampaignStatistic, LocalDate>): DateField = DateField(property.name)
 
-    fun sum(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField {
-        val field = AggregateField(LongField(property.name), SUM)
-        return field
-    }
+    fun selectLong(property: KProperty1<MarketingCampaignStatistic, Long>): LongField = LongField(property.name)
 
-    fun count(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField {
-        val field = AggregateField(LongField(property.name), COUNT)
-        return field
-    }
+    fun selectLong(value: Long): LongField = LongField(value = value)
+
+    fun sum(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField =
+        AggregateField(LongField(property.name), SUM)
+
+    fun count(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField =
+        AggregateField(LongField(property.name), COUNT)
 
     fun div(property: KProperty1<MarketingCampaignStatistic, Long>): Boolean {
         return dimensions.add(AggregateField(LongField(property.name), COUNT))
     }
 
-    fun avg(property: KProperty1<MarketingCampaignStatistic, Long>) {
-        dimensions.add(AggregateField(LongField(property.name), AVERAGE))
-    }
+    fun avg(property: KProperty1<MarketingCampaignStatistic, Long>) = AggregateField(LongField(property.name), AVERAGE)
 
     fun build(init: MarketingDataRequestBuilder.() -> Unit): MarketingDataRequest {
         this.init()
         if (dimensions.isEmpty()) {
             dimensions.add(StringField(MarketingCampaignStatistic::dataSource.name))
         }
-        return MarketingDataRequest(dimensions, filters)
+        return MarketingDataRequest(dimensions, filters, groupBy)
     }
 }
 

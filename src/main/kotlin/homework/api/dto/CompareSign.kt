@@ -4,7 +4,6 @@ import org.jetbrains.exposed.sql.Between
 import org.jetbrains.exposed.sql.Expression
 import org.jetbrains.exposed.sql.ExpressionWithColumnType
 import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.between
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
@@ -32,7 +31,7 @@ enum class FilterOperation(val value: String) {
             GE -> one greaterEq other
             GT -> one greater other
             BETWEEN -> {
-                Between(one, other, max!!)
+                Between(one, other, checkNotNull(max) { "Between requires not null max param" })
             }
             else -> throw java.lang.IllegalArgumentException("Unsupported filter operation")
         }

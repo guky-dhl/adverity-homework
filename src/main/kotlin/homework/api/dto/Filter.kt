@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Op
 import java.time.LocalDate
 
-@Serializable
+//@Serializable
 sealed class Filter<T : Comparable<T>> {
     abstract val first: Field<T>
     abstract val second: Field<T>?
@@ -36,7 +36,7 @@ sealed class Filter<T : Comparable<T>> {
         }
     }
 
-    @Serializable
+    //@Serializable
     @SerialName("StringFilter")
     data class StringFilter(
         override val operator: FilterOperation,
@@ -67,7 +67,7 @@ sealed class Filter<T : Comparable<T>> {
             get() = null
     }
 
-    @Serializable
+    //@Serializable
     @SerialName("LongFilter")
     data class LongFilter(
         override val operator: FilterOperation,
@@ -81,7 +81,7 @@ sealed class Filter<T : Comparable<T>> {
         }
     }
 
-    @Serializable
+    //@Serializable
     @SerialName("DateFilter")
     data class DateFilter(
         override val operator: FilterOperation,
