@@ -7,3 +7,4 @@ fun SchemaUtils.dropCreate(vararg tables: Table) {
     drop(*tables)
     create(*tables)
 }
+

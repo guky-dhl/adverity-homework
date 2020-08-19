@@ -1,5 +1,5 @@
 object Versions {
-    const val exposed = "0.26.1"
+    const val exposed = "0.26.2"
     const val kotlin = "1.3.72"
     const val ktor = "1.3.2"
 }

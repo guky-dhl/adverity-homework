@@ -1,9 +1,11 @@
 package homework
 
+import homework.api.MarketingStatisticController
 import homework.api.PingController
 import homework.domain.LoadStatistic
 import homework.domain.MarketingCampaignStatistic
 import homework.domain.MarketingCampaignStatisticRepository
+import homework.domain.MarketingReport
 import homework.infrastructure.dropCreate
 import homework.infrastructure.get
 import homework.infrastructure.isProd
@@ -21,6 +23,8 @@ fun mainModule(application: Application) = module(createdAtStart = true) {
     single { MarketingCampaignStatisticRepository() }
     single { PingController(get(), get()) }
     single { LoadStatistic(get()) }
+    single { MarketingStatisticController(get(), get()) }
+    single { MarketingReport(get()) }
 }
 
 @OptIn(KtorExperimentalAPI::class)
