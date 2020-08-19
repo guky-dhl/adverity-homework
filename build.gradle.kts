@@ -37,10 +37,6 @@ dependencies {
     implementation(Libs.postgre)
     implementation("com.h2database:h2:1.4.199")
 
-    // json
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.20.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0") // JVM dependency
-
     implementation("org.koin:koin-core:2.1.6")
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
@@ -49,7 +45,7 @@ dependencies {
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
     testImplementation("io.kotest:kotest-assertions-core-jvm:4.1.3")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
 
 }

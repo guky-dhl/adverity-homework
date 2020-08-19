@@ -1,10 +1,12 @@
-@file:ContextualSerialization(LocalDate::class)
+@file:UseContextualSerialization(LocalDate::class)
 
 package homework.api.dto
 
 import homework.domain.MarketingCampaignStatistic
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.minus
@@ -13,8 +15,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.times
 import org.jetbrains.exposed.sql.`java-time`.dateLiteral
 import java.time.LocalDate
 
-//@Serializable
-sealed class Field<T>() {
+@Serializable
+sealed class Field<T> {
     abstract val columnName: String?
     abstract val value: T?
 
@@ -37,7 +39,8 @@ sealed class Field<T>() {
 
     open fun isColumn() = columnName != null
 
-    //@Serializable
+    @Serializable
+    @SerialName("StringField")
     data class StringField(
         override val columnName: String? = null,
         override val value: String? = null
@@ -57,10 +60,11 @@ sealed class Field<T>() {
         override fun asLiteral(): ExpressionWithColumnType<String> = stringLiteral(value!!)
     }
 
-    //@Serializable
+    @Serializable
+    @SerialName("DateField")
     data class DateField(
         override val columnName: String? = null,
-        override val value: @ContextualSerialization LocalDate? = null
+        override val value: @Contextual LocalDate? = null
     ) :
         Field<LocalDate>() {
         init {
@@ -77,7 +81,8 @@ sealed class Field<T>() {
         override fun asLiteral(): ExpressionWithColumnType<LocalDate> = dateLiteral(value!!)
     }
 
-    //@Serializable
+    @Serializable
+    @SerialName("LongField")
     data class LongField(
         override val columnName: String? = null,
         override val value: Long? = null
@@ -97,7 +102,8 @@ sealed class Field<T>() {
         override fun asLiteral(): ExpressionWithColumnType<Long> = longLiteral(value!!)
     }
 
-    //@Serializable
+    @Serializable
+    @SerialName("AggregateField")
     data class AggregateField(
         val field: Field<Long>,
         val aggregationType: AggregationType = AggregationType.SUM
@@ -122,17 +128,17 @@ sealed class Field<T>() {
                     AggregationType.SUM ->
                         field.asExpression().sum()
                     AggregationType.MIN ->
-                        field.asExpression().min()
+                        field.asExpression().min() as ExpressionWithColumnType<Long>
                     AggregationType.MAX ->
-                        field.asExpression().max()
+                        field.asExpression().max() as ExpressionWithColumnType<Long>
                     AggregationType.AVERAGE ->
                         field.asExpression().avg(0)
                             .castTo<Long>(LongColumnType())
                     AggregationType.COUNT ->
                         field.asExpression().count()
-                },
+                } as ExpressionWithColumnType<Long>,
                 longLiteral(0)
-            ) as ExpressionWithColumnType<Long>
+            )
         }
 
         enum class AggregationType {
@@ -140,7 +146,8 @@ sealed class Field<T>() {
         }
     }
 
-    //@Serializable
+    @Serializable
+    @SerialName("CalculatedField")
     data class CalculatedField(
         val calculationType: CalculationType = CalculationType.PLUS,
         val first: Field<Long>,

@@ -1,10 +1,11 @@
-@file:ContextualSerialization(Any::class)
+@file:UseContextualSerialization(Any::class)
 
 package homework.api.dto
 
-import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.UseContextualSerialization
+import kotlinx.serialization.Serializable
 
-//@Serializable
+@Serializable
 data class MarketingDataRequest(
     val dimensions: Set<Field<*>>,
     val filters: Set<Filter<*>> = setOf(),
@@ -41,5 +42,5 @@ data class MarketingDataRequest(
     }
 }
 
-//@Serializable
+@Serializable
 data class MarketingDataResponse(val result: List<Set<*>>)

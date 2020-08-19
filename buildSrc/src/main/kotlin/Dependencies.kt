@@ -1,7 +1,7 @@
 object Versions {
     const val exposed = "0.26.2"
-    const val kotlin = "1.3.72"
-    const val ktor = "1.3.2"
+    const val kotlin = "1.4.0"
+    const val ktor = "1.4.0"
 }
 
 object Libs {

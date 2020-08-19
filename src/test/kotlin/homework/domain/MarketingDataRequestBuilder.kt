@@ -40,6 +40,8 @@ class MarketingDataRequestBuilder {
 
     fun selectDate(property: KProperty1<MarketingCampaignStatistic, LocalDate>): DateField = DateField(property.name)
 
+    fun selectDate(value: LocalDate): DateField = DateField(value = value)
+
     fun selectLong(property: KProperty1<MarketingCampaignStatistic, Long>): LongField = LongField(property.name)
 
     fun selectLong(value: Long): LongField = LongField(value = value)
