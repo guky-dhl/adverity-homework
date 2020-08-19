@@ -13,14 +13,10 @@ import java.time.LocalDate
 
 val json = Json {
     isLenient = true
-    prettyPrint = true
     serializersModule = SerializersModule {
         contextual(LocalDate::class, LocalDateSerializer)
     }
 }
-//val json = Json(context = SerializersModule {
-//    contextual(LocalDate::class, LocalDateSerializer)
-//}, configuration = JsonConfiguration.Stable.copy(isLenient = true))
 
 @Serializer(LocalDate::class)
 object LocalDateSerializer : KSerializer<LocalDate> {
