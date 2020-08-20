@@ -1,6 +1,5 @@
 package homework.api.dto
 
-import homework.api.dto.Field.SimpleField
 import homework.api.dto.Field.SimpleField.*
 import homework.domain.MarketingCampaignStatistic
 import io.kotest.assertions.throwables.shouldThrow

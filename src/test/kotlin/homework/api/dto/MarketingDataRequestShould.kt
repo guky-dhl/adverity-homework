@@ -13,7 +13,7 @@ import java.time.LocalDate
 internal class MarketingDataRequestShould {
 
     @Test
-    fun `not be created with aggregate is present by not aggregated field is not in group by `() {
+    fun `not be created when aggregate is present and group by missing others fields`() {
         val error = shouldThrow<IllegalStateException> {
             marketingDataRequest {
                 +(sum(MarketingCampaignStatistic::clicks) / selectLong(MarketingCampaignStatistic::impressions))
