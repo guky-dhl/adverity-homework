@@ -4,12 +4,16 @@ import homework.api.dto.Field
 import homework.api.dto.Field.*
 import homework.api.dto.Field.AggregateField.AggregationType.*
 import homework.api.dto.Field.CalculatedField.CalculationType.DIVIDE
+import homework.api.dto.Field.CalculatedField.CalculationType.TIMES
+import homework.api.dto.Field.SimpleField.*
 import homework.api.dto.Filter
 import homework.api.dto.Filter.DateFilter
 import homework.api.dto.Filter.StringFilter
 import homework.api.dto.FilterOperation
 import homework.api.dto.FilterOperation.BETWEEN
 import homework.api.dto.MarketingDataRequest
+import homework.infrastructure.asDecimal
+import java.math.BigDecimal
 import java.time.LocalDate
 import kotlin.reflect.KProperty1
 
@@ -28,35 +32,9 @@ class MarketingDataRequestBuilder {
         dimensions.add(this)
     }
 
-    operator fun Field<Long>.div(second: Field<Long>): Field<Long> {
-        return CalculatedField(DIVIDE, this, second)
-    }
-
     fun groupBy(vararg field: Field<*>) {
         groupBy.addAll(field)
     }
-
-    fun selectString(property: KProperty1<MarketingCampaignStatistic, String>): StringField = StringField(property.name)
-
-    fun selectDate(property: KProperty1<MarketingCampaignStatistic, LocalDate>): DateField = DateField(property.name)
-
-    fun selectDate(value: LocalDate): DateField = DateField(value = value)
-
-    fun selectLong(property: KProperty1<MarketingCampaignStatistic, Long>): LongField = LongField(property.name)
-
-    fun selectLong(value: Long): LongField = LongField(value = value)
-
-    fun sum(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField =
-        AggregateField(LongField(property.name), SUM)
-
-    fun count(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField =
-        AggregateField(LongField(property.name), COUNT)
-
-    fun div(property: KProperty1<MarketingCampaignStatistic, Long>): Boolean {
-        return dimensions.add(AggregateField(LongField(property.name), COUNT))
-    }
-
-    fun avg(property: KProperty1<MarketingCampaignStatistic, Long>) = AggregateField(LongField(property.name), AVERAGE)
 
     fun build(init: MarketingDataRequestBuilder.() -> Unit): MarketingDataRequest {
         this.init()
@@ -75,7 +53,9 @@ class StringFilterBuilder {
     private val inValues = mutableListOf<String>()
 
     fun value(value: String) = operands.add(StringField(value = value))
-    fun column(property: KProperty1<MarketingCampaignStatistic, String>) = operands.add(StringField(property.name))
+    fun column(property: KProperty1<MarketingCampaignStatistic, String>) =
+        operands.add(StringField(property.name))
+
     fun values(vararg values: String) = inValues.addAll(values)
 
     fun build(init: StringFilterBuilder.() -> Unit): StringFilter {
@@ -114,3 +94,53 @@ class DateFilterBuilder {
 }
 
 fun dateFilter(init: DateFilterBuilder.() -> Unit): DateFilter = DateFilterBuilder().build(init)
+
+
+operator fun LongField.div(second: LongField): Field<BigDecimal> {
+    return CalculatedField(DIVIDE, this.asDecimal(), second.asDecimal())
+}
+
+operator fun Field<BigDecimal>.div(second: LongField): Field<BigDecimal> {
+    return CalculatedField(DIVIDE, this, second.asDecimal())
+}
+
+operator fun Field<BigDecimal>.div(second: Field<BigDecimal>): Field<BigDecimal> {
+    return CalculatedField(DIVIDE, this, second)
+}
+
+operator fun LongField.times(second: Long): Field<BigDecimal> {
+    return CalculatedField(TIMES, this.asDecimal(), LongField(value = second).asDecimal())
+}
+
+operator fun Field<BigDecimal>.times(second: Long): Field<BigDecimal> {
+    return CalculatedField(TIMES, this, LongField(value = second).asDecimal())
+}
+
+
+fun selectString(property: KProperty1<MarketingCampaignStatistic, String>): StringField =
+    StringField(property.name)
+
+fun selectString(value: String): StringField =
+    StringField(value = value)
+
+fun selectDate(property: KProperty1<MarketingCampaignStatistic, LocalDate>): DateField = DateField(property.name)
+
+fun selectDate(value: LocalDate): DateField = DateField(value = value)
+
+fun selectLong(property: KProperty1<MarketingCampaignStatistic, Long>): LongField = LongField(property.name)
+
+fun selectLong(value: Long): LongField = LongField(value = value)
+
+fun selectDecimal(value: Int): DecimalField = DecimalField(value = value.asDecimal())
+
+fun selectDecimal(value: BigDecimal): DecimalField = DecimalField(value = value)
+
+fun sum(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField =
+    AggregateField(LongField(property.name).asDecimal(), SUM)
+
+fun count(property: KProperty1<MarketingCampaignStatistic, Long>): AggregateField =
+    AggregateField(LongField(property.name).asDecimal(), COUNT)
+
+
+fun avg(property: KProperty1<MarketingCampaignStatistic, Long>) =
+    AggregateField(LongField(property.name).asDecimal(), AVERAGE)

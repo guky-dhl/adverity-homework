@@ -1,17 +1,18 @@
 package homework.domain
 
+import homework.api.dto.Field.SimpleField.DateField
+import homework.api.dto.Field.SimpleField.LongField
 import homework.api.dto.FilterOperation.*
 import homework.infrastructure.RepositoryTest
 import homework.infrastructure.TestSubject
+import homework.infrastructure.asDecimal
 import homework.infrastructure.dropCreate
 import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.time.LocalDate
 import java.time.LocalDate.now
-import kotlin.math.roundToLong
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class MarketingReportShould : RepositoryTest() {
@@ -50,9 +51,9 @@ internal class MarketingReportShould : RepositoryTest() {
                     }
                 )
                 by.result.size shouldBe 1
-                by.result.first().toList()[0] shouldBe dataSource
+                by.result.first().toList()[0] shouldBe selectString("MyDataSource")
                 by.result.first()
-                    .toList()[1]!! shouldBe (1..statsRecordCount).sumBy { it.toInt() * impressionsMultiplicand.toInt() }
+                    .toList()[1] shouldBe selectDecimal((1..statsRecordCount).sumBy { it.toInt() * impressionsMultiplicand.toInt() })
             }
         }
     }
@@ -72,9 +73,9 @@ internal class MarketingReportShould : RepositoryTest() {
                 )
                 by.result.size shouldBe statsRecordCount
                 by.result.first().size shouldBe selectedFieldCount
-                by.result.first().toList()[0] shouldBe dataSource
-                by.result.first().toList()[1]!!::class shouldBe LocalDate::class
-                by.result.first().toList()[2]!!::class shouldBe Long::class
+                by.result.first().toList()[0] shouldBe selectString(dataSource)
+                by.result.first().toList()[1]::class shouldBe DateField::class
+                by.result.first().toList()[2]::class shouldBe LongField::class
             }
         }
 
@@ -88,7 +89,7 @@ internal class MarketingReportShould : RepositoryTest() {
                 )
                 by.result.size shouldBe 1
                 by.result.first().size shouldBe 1
-                by.result.first().toList()[0] shouldBe (1..100).sum()
+                by.result.first().toList()[0] shouldBe selectDecimal((1..100).sum())
             }
         }
 
@@ -102,7 +103,7 @@ internal class MarketingReportShould : RepositoryTest() {
                 )
                 by.result.size shouldBe 1
                 by.result.first().size shouldBe 1
-                by.result.first().toList()[0] shouldBe (1..statsRecordCount).average().roundToLong()
+                by.result.first().toList()[0] shouldBe selectDecimal((1..statsRecordCount).average().asDecimal())
             }
         }
     }

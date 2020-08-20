@@ -1,5 +1,6 @@
 package homework.domain
 
+import homework.api.dto.Field
 import homework.api.dto.MarketingDataRequest
 import homework.api.dto.MarketingDataResponse
 import org.jetbrains.exposed.sql.*
@@ -18,10 +19,10 @@ class MarketingReport {
         }
     }
 
-    private fun rowToDimensionSet(dataRequest: MarketingDataRequest): (ResultRow) -> Set<Any> {
+    private fun rowToDimensionSet(dataRequest: MarketingDataRequest): (ResultRow) -> Set<Field.SimpleField<*>> {
         return { row ->
             dataRequest.dimensions.map {
-                row[it.asExpression()]!!
+                Field.wrapValue(row[it.asExpression()]!!)
             }.toSet()
         }
     }

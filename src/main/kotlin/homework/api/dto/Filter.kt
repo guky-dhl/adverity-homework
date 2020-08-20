@@ -1,13 +1,15 @@
-@file:UseContextualSerialization(LocalDate::class)
+@file:UseContextualSerialization(LocalDate::class, BigDecimal::class)
 
 package homework.api.dto
 
 import homework.api.dto.Field.*
+import homework.api.dto.Field.SimpleField.StringField
 import homework.api.dto.FilterOperation.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 import org.jetbrains.exposed.sql.Op
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Serializable
@@ -68,14 +70,14 @@ sealed class Filter<T : Comparable<T>> {
     }
 
     @Serializable
-    @SerialName("LongFilter")
-    data class LongFilter(
+    @SerialName("NumberFilter")
+    data class NumberFilter(
         override val operator: FilterOperation,
-        override val first: LongField,
-        override val second: LongField?,
-        override val max: Field<Long>? = null,
-        override val valueSet: Set<Long>
-    ) : Filter<Long>() {
+        override val first: Field<BigDecimal>,
+        override val second: Field<BigDecimal>?,
+        override val max: Field<BigDecimal>? = null,
+        override val valueSet: Set<BigDecimal>
+    ) : Filter<BigDecimal>() {
         init {
             validate()
         }
@@ -85,9 +87,9 @@ sealed class Filter<T : Comparable<T>> {
     @SerialName("DateFilter")
     data class DateFilter(
         override val operator: FilterOperation,
-        override val first: DateField,
-        override val second: DateField?,
-        override val max: DateField? = null,
+        override val first: SimpleField.DateField,
+        override val second: SimpleField.DateField?,
+        override val max: SimpleField.DateField? = null,
         override val valueSet: Set<LocalDate> = setOf()
     ) : Filter<LocalDate>() {
         init {

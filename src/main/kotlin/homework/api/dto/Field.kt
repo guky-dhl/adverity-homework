@@ -1,143 +1,236 @@
-@file:UseContextualSerialization(LocalDate::class)
+@file:UseContextualSerialization(LocalDate::class, BigDecimal::class)
 
 package homework.api.dto
 
+import homework.api.dto.Field.SimpleField.LongField
 import homework.domain.MarketingCampaignStatistic
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseContextualSerialization
+import homework.infrastructure.defaultDecimalColumn
+import kotlinx.serialization.*
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.minus
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.div
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.minus
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.times
 import org.jetbrains.exposed.sql.`java-time`.dateLiteral
+import java.math.BigDecimal
+import java.math.BigDecimal.ZERO
 import java.time.LocalDate
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 @Serializable
 sealed class Field<T> {
-    abstract val columnName: String?
-    abstract val value: T?
 
-    protected fun validate() {
-        check(hasSingleNotNullParam()) { "Please specify only 1 param" }
+
+    open fun isColumn(): Boolean = when (this) {
+        is SimpleField -> this.isColumn()
+        else -> false
     }
 
-    private fun hasSingleNotNullParam() = setOf(columnName, value)
-        .count { it != null } == 1
+    abstract fun asExpression(): ExpressionWithColumnType<T>
 
-
-    protected abstract fun asColumn(): ExpressionWithColumnType<T>
-    protected abstract fun asLiteral(): ExpressionWithColumnType<T>
-
-    open fun asExpression(): ExpressionWithColumnType<T> {
-        return columnName?.let {
-            asColumn()
-        } ?: asLiteral()
-    }
-
-    open fun isColumn() = columnName != null
-
-    @Serializable
-    @SerialName("StringField")
-    data class StringField(
-        override val columnName: String? = null,
-        override val value: String? = null
-    ) :
-        Field<String>() {
-        init {
-            validate()
+    companion object {
+        fun wrapValue(value: Any): SimpleField<*> {
+            return when (value) {
+                is Long -> LongField(value = value)
+                is String -> SimpleField.StringField(value = value)
+                is LocalDate -> SimpleField.DateField(value = value)
+                is BigDecimal -> SimpleField.DecimalField(value = value)
+                else -> throw IllegalStateException("Unsupported response value[$value] of type ${value::class}")
+            }
         }
-
-        override fun asColumn(): ExpressionWithColumnType<String> {
-            val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
-            check(columnFromFieldName.columnType is StringColumnType) { "Column[$columnName] is not string" }
-            @Suppress("UNCHECKED_CAST")
-            return columnFromFieldName as ExpressionWithColumnType<String>
-        }
-
-        override fun asLiteral(): ExpressionWithColumnType<String> = stringLiteral(value!!)
     }
 
     @Serializable
-    @SerialName("DateField")
-    data class DateField(
-        override val columnName: String? = null,
-        override val value: @Contextual LocalDate? = null
-    ) :
-        Field<LocalDate>() {
-        init {
-            validate()
+    sealed class SimpleField<T> : Field<T>() {
+        abstract val columnName: String?
+        abstract val value: T?
+        abstract val columnTypeClass: KClass<*>
+
+        protected fun validate() {
+            check(hasSingleNotNullParam()) { "Please specify only 1 param" }
         }
 
-        override fun asColumn(): ExpressionWithColumnType<LocalDate> {
+        private fun hasSingleNotNullParam() = setOf(columnName, value)
+            .count { it != null } == 1
+
+        protected open fun asColumn(): ExpressionWithColumnType<T> {
             val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
-            check(columnFromFieldName.columnType is IDateColumnType) { "Column[$columnName] is not date type" }
+            check(columnFromFieldName.columnType::class.isSubclassOf(columnTypeClass)) { "Column[$columnName] is not $columnTypeClass" }
             @Suppress("UNCHECKED_CAST")
-            return columnFromFieldName as ExpressionWithColumnType<LocalDate>
+            return columnFromFieldName as ExpressionWithColumnType<T>
         }
 
-        override fun asLiteral(): ExpressionWithColumnType<LocalDate> = dateLiteral(value!!)
+        protected abstract fun asLiteral(): ExpressionWithColumnType<T>
+
+        override fun isColumn() = columnName != null
+
+        override fun asExpression(): ExpressionWithColumnType<T> {
+            return columnName?.let {
+                asColumn()
+            } ?: asLiteral()
+        }
+
+
+        @Serializable
+        @SerialName("StringField")
+        data class StringField(
+            override val columnName: String? = null,
+            override val value: String? = null
+        ) :
+            SimpleField<String>() {
+            @Transient
+            override val columnTypeClass = StringColumnType::class
+
+            init {
+                validate()
+            }
+
+            override fun asLiteral(): ExpressionWithColumnType<String> = stringLiteral(value!!)
+
+        }
+
+        @Serializable
+        @SerialName("DateField")
+        data class DateField(
+            override val columnName: String? = null,
+            override val value: @Contextual LocalDate? = null
+        ) :
+            SimpleField<LocalDate>() {
+            @Transient
+            override val columnTypeClass = IDateColumnType::class
+
+            init {
+                validate()
+            }
+
+            override fun asLiteral(): ExpressionWithColumnType<LocalDate> = dateLiteral(value!!)
+        }
+
+        @Serializable
+        @SerialName("LongField")
+        data class LongField(
+            override val columnName: String? = null,
+            override val value: Long? = null
+        ) :
+            SimpleField<Long>() {
+            @Transient
+            override val columnTypeClass = LongColumnType::class
+
+            init {
+                validate()
+            }
+
+            override fun asLiteral(): ExpressionWithColumnType<Long> = longLiteral(value!!.toLong())
+            fun asDecimal(): Field<BigDecimal> {
+                return DecimalField(columnName, value?.toBigDecimal())
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is DecimalField && other !is LongField) return false
+
+                if (other is LongField) {
+                    if (columnName != other.columnName) return false
+                    if (value != other.value) return false
+                }
+
+                if (other is DecimalField) {
+                    if (columnName != other.columnName) return false
+                    if (value?.toBigDecimal() != other.value) return false
+                }
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = columnName?.hashCode() ?: 0
+                result = 31 * result + (value?.hashCode() ?: 0)
+                return result
+            }
+        }
+
+        @Serializable
+        @SerialName("DecimalField")
+        data class DecimalField(
+            override val columnName: String? = null,
+            override val value: BigDecimal? = null
+        ) :
+            SimpleField<BigDecimal>() {
+            @Transient
+            override val columnTypeClass: KClass<*> = DecimalColumnType::class
+
+            init {
+                validate()
+            }
+
+            override fun asColumn(): ExpressionWithColumnType<BigDecimal> {
+                val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
+                check(
+                    columnFromFieldName.columnType::class.isSubclassOf(columnTypeClass)
+                            || columnFromFieldName.columnType is LongColumnType
+                ) { "Column[$columnName] is not $columnTypeClass" }
+                @Suppress("UNCHECKED_CAST")
+                return columnFromFieldName as ExpressionWithColumnType<BigDecimal>
+            }
+
+            override fun asLiteral(): ExpressionWithColumnType<BigDecimal> =
+                LiteralOp(defaultDecimalColumn, value!!)
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is DecimalField && other !is LongField) return false
+
+                if (other is LongField) {
+                    if (columnName != other.columnName) return false
+                    if (value != other.value?.toBigDecimal()) return false
+                }
+
+                if (other is DecimalField) {
+                    if (columnName != other.columnName) return false
+                    if (value != other.value) return false
+                }
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = columnName?.hashCode() ?: 0
+                result = 31 * result + (value?.hashCode() ?: 0)
+                return result
+            }
+        }
+
+
     }
 
-    @Serializable
-    @SerialName("LongField")
-    data class LongField(
-        override val columnName: String? = null,
-        override val value: Long? = null
-    ) :
-        Field<Long>() {
-        init {
-            validate()
-        }
-
-        override fun asColumn(): ExpressionWithColumnType<Long> {
-            val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
-            check(columnFromFieldName.columnType is LongColumnType) { "Column[$columnName] is not long type" }
-            @Suppress("UNCHECKED_CAST")
-            return columnFromFieldName as ExpressionWithColumnType<Long>
-        }
-
-        override fun asLiteral(): ExpressionWithColumnType<Long> = longLiteral(value!!)
-    }
 
     @Serializable
     @SerialName("AggregateField")
     data class AggregateField(
-        val field: Field<Long>,
+        val field: Field<BigDecimal>,
         val aggregationType: AggregationType = AggregationType.SUM
     ) :
-        Field<Long>() {
-        override val columnName: String? = null
-        override val value: Long? = null
-
-        override fun asColumn(): ExpressionWithColumnType<Long> {
-            val columnFromFieldName = MarketingCampaignStatistic.Table.columnFromFieldName(columnName!!)
-            check(columnFromFieldName.columnType is LongColumnType) { "Column[$columnName] is not long type" }
-            @Suppress("UNCHECKED_CAST")
-            return columnFromFieldName as ExpressionWithColumnType<Long>
-        }
-
-        override fun asLiteral(): ExpressionWithColumnType<Long> = longLiteral(value!!)
+        Field<BigDecimal>() {
 
         @Suppress("UNCHECKED_CAST")
-        override fun asExpression(): ExpressionWithColumnType<Long> {
+        override fun asExpression(): ExpressionWithColumnType<BigDecimal> {
             return Coalesce(
                 when (aggregationType) {
                     AggregationType.SUM ->
                         field.asExpression().sum()
                     AggregationType.MIN ->
-                        field.asExpression().min() as ExpressionWithColumnType<Long>
+                        field.asExpression().min()
                     AggregationType.MAX ->
-                        field.asExpression().max() as ExpressionWithColumnType<Long>
+                        field.asExpression().max()
                     AggregationType.AVERAGE ->
-                        field.asExpression().avg(0)
-                            .castTo<Long>(LongColumnType())
+                        field.asExpression().avg(4)
                     AggregationType.COUNT ->
-                        field.asExpression().count()
-                } as ExpressionWithColumnType<Long>,
-                longLiteral(0)
+                        field.asExpression()
+                            .count()
+                            .castTo(defaultDecimalColumn)
+                },
+                LiteralOp(defaultDecimalColumn, ZERO)
             )
         }
 
@@ -150,31 +243,21 @@ sealed class Field<T> {
     @SerialName("CalculatedField")
     data class CalculatedField(
         val calculationType: CalculationType = CalculationType.PLUS,
-        val first: Field<Long>,
-        val second: Field<Long>
-    ) : Field<Long>() {
-        override val columnName: String? = null
-        override val value: Long? = null
+        val first: Field<BigDecimal>,
+        val second: Field<BigDecimal>
+    ) : Field<BigDecimal>() {
 
         enum class CalculationType {
             PLUS, MINUS, TIMES, DIVIDE
         }
 
-        override fun asColumn(): ExpressionWithColumnType<Long> {
-            TODO("Not yet implemented")
-        }
-
-        override fun asLiteral(): ExpressionWithColumnType<Long> {
-            TODO("Not yet implemented")
-        }
-
-        override fun asExpression(): ExpressionWithColumnType<Long> {
+        override fun asExpression(): ExpressionWithColumnType<BigDecimal> {
             return when (calculationType) {
                 CalculationType.PLUS -> first.asExpression().plus(second.asExpression())
                 CalculationType.MINUS -> first.asExpression().minus(second.asExpression())
                 CalculationType.TIMES -> first.asExpression().times(second.asExpression())
                 CalculationType.DIVIDE -> first.asExpression().div(second.asExpression())
-            }.castTo(LongColumnType())
+            }
         }
     }
 }

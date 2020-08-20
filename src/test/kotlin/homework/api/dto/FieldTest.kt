@@ -1,5 +1,7 @@
 package homework.api.dto
 
+import homework.api.dto.Field.SimpleField
+import homework.api.dto.Field.SimpleField.*
 import homework.domain.MarketingCampaignStatistic
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
@@ -14,13 +16,13 @@ internal class FieldTest {
 
         @Test
         fun `be created with long column`() {
-            Field.LongField(MarketingCampaignStatistic::clicks.name)
+            LongField(MarketingCampaignStatistic::clicks.name)
         }
 
         @Test
         fun `not be created with both parameters`() {
             val e = shouldThrow<IllegalStateException> {
-                Field.LongField(MarketingCampaignStatistic::clicks.name, 1)
+                LongField(MarketingCampaignStatistic::clicks.name, 1)
             }
             e.message shouldContain "only 1 param"
         }
@@ -28,10 +30,11 @@ internal class FieldTest {
         @Test
         fun `not be converted to expression when column target is not long type`() {
             val e = shouldThrow<IllegalStateException> {
-                Field.LongField(MarketingCampaignStatistic::dataSource.name).asExpression()
+                LongField(MarketingCampaignStatistic::dataSource.name).asExpression()
             }
             e.message shouldContain MarketingCampaignStatistic::dataSource.name
-            e.message shouldContain "is not long"
+            e.message shouldContain "is not"
+            e.message shouldContain "LongColumnType"
         }
     }
 
@@ -40,13 +43,13 @@ internal class FieldTest {
 
         @Test
         fun `be created with date column`() {
-            Field.DateField(MarketingCampaignStatistic::at.name)
+            DateField(MarketingCampaignStatistic::at.name)
         }
 
         @Test
         fun `not be created with both parameters`() {
             val e = shouldThrow<IllegalStateException> {
-                Field.DateField(MarketingCampaignStatistic::at.name, now())
+                DateField(MarketingCampaignStatistic::at.name, now())
             }
             e.message shouldContain "only 1 param"
         }
@@ -54,10 +57,10 @@ internal class FieldTest {
         @Test
         fun `not be converted to expression when column target is not date type`() {
             val e = shouldThrow<IllegalStateException> {
-                Field.DateField(MarketingCampaignStatistic::dataSource.name).asExpression()
+                DateField(MarketingCampaignStatistic::dataSource.name).asExpression()
             }
             e.message shouldContain MarketingCampaignStatistic::dataSource.name
-            e.message shouldContain "is not date"
+            e.message shouldContain "is not"
         }
 
     }
@@ -67,13 +70,13 @@ internal class FieldTest {
 
         @Test
         fun `be created with string column`() {
-            Field.StringField(MarketingCampaignStatistic::dataSource.name)
+            StringField(MarketingCampaignStatistic::dataSource.name)
         }
 
         @Test
         fun `not be created with both parameters`() {
             val e = shouldThrow<IllegalStateException> {
-                Field.StringField(MarketingCampaignStatistic::dataSource.name, "")
+                StringField(MarketingCampaignStatistic::dataSource.name, "")
             }
             e.message shouldContain "only 1 param"
         }
@@ -81,10 +84,11 @@ internal class FieldTest {
         @Test
         fun `not be converted to expression when column target is not string type`() {
             val e = shouldThrow<IllegalStateException> {
-                Field.StringField(MarketingCampaignStatistic::at.name).asExpression()
+                StringField(MarketingCampaignStatistic::at.name).asExpression()
             }
             e.message shouldContain MarketingCampaignStatistic::at.name
-            e.message shouldContain "is not string"
+            e.message shouldContain "is not"
+            e.message shouldContain "StringColumnType"
         }
     }
 }

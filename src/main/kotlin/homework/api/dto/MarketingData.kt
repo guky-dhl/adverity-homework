@@ -2,8 +2,8 @@
 
 package homework.api.dto
 
-import kotlinx.serialization.UseContextualSerialization
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
 data class MarketingDataRequest(
@@ -43,4 +43,4 @@ data class MarketingDataRequest(
 }
 
 @Serializable
-data class MarketingDataResponse(val result: List<Set<*>>)
+data class MarketingDataResponse(val result: List<Set<Field.SimpleField<*>>>)

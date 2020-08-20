@@ -8,6 +8,7 @@ import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.*
@@ -36,15 +37,16 @@ abstract class ApiTest : KoinTest {
             }
         }
     ).start(false)
-
 }
 
+@OptIn(KtorExperimentalAPI::class)
 fun httpClientModule(defaultPort: Int) = module {
     single {
         HttpClient(CIO) {
             defaultRequest {
                 host = "localhost"
                 port = defaultPort
+                contentType(ContentType.Application.Json)
             }
             install(JsonFeature) {
                 serializer = KotlinxSerializer(json)

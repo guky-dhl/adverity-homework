@@ -1,15 +1,12 @@
 package homework.api.dto
 
-import homework.domain.MarketingCampaignStatistic
-import homework.domain.marketingDataRequest
-import homework.domain.stringFilter
+import homework.domain.*
 import homework.infrastructure.json
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.stringify
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -29,7 +26,7 @@ internal class MarketingDataRequestShould {
     }
 
     @Test
-    fun `be marshaled and un unmurshaled to json`(){
+    fun `be marshaled and un unmurshaled to json`() {
         val request = marketingDataRequest {
             +(sum(MarketingCampaignStatistic::clicks) / selectLong(MarketingCampaignStatistic::impressions))
             +selectString(MarketingCampaignStatistic::dataSource)

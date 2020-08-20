@@ -5,7 +5,9 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.koin.core.context.stopKoin
 import org.koin.test.inject
 
 internal class PingControllerShould : ApiTest() {
@@ -20,5 +22,10 @@ internal class PingControllerShould : ApiTest() {
                 }
             }
         } shouldBe "OK"
+    }
+
+    @AfterEach
+    internal fun tearDown() {
+        stopKoin()
     }
 }
