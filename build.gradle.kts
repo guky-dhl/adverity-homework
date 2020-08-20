@@ -44,6 +44,11 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3")
+
+    testImplementation(Libs.ktor.`client-core`)
+    testImplementation(Libs.ktor.`client-serialization`)
+    testImplementation(Libs.ktor.`client-engine-cio`)
+    testImplementation("org.koin:koin-test:2.1.6")
     testImplementation("io.kotest:kotest-assertions-core-jvm:4.1.3")
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")

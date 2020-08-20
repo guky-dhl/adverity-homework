@@ -1,11 +1,12 @@
 package homework.domain
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class LoadStatistic(private val campaignStatistics: MarketingCampaignStatisticRepository) {
+class LoadStatistic(private val campaignStatistics: MarketingCampaignStatisticRepository, createdForCorrectDIGrahp: Database) {
     private val pattern = DateTimeFormatter.ofPattern("MM/dd/yy")!!
 
     init {

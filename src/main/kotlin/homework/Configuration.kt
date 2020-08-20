@@ -9,8 +9,10 @@ import homework.domain.MarketingReport
 import homework.infrastructure.dropCreate
 import homework.infrastructure.get
 import homework.infrastructure.isProd
-import io.ktor.application.Application
-import io.ktor.application.ApplicationEnvironment
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.serialization.*
 import io.ktor.util.KtorExperimentalAPI
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -18,13 +20,23 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.dsl.module
 
 fun mainModule(application: Application) = module(createdAtStart = true) {
+    installJson(application)
     single { application }
     single { application.environment }
     single { MarketingCampaignStatisticRepository() }
-    single { PingController(get(), get()) }
-    single { LoadStatistic(get()) }
+    single { PingController(get()) }
+    single { LoadStatistic(get(), get()) }
     single { MarketingStatisticController(get(), get()) }
     single { MarketingReport() }
+}
+
+private fun installJson(application: Application) {
+    application.install(ContentNegotiation) {
+        json(
+            json = homework.infrastructure.json,
+            contentType = ContentType.Application.Json
+        )
+    }
 }
 
 @OptIn(KtorExperimentalAPI::class)

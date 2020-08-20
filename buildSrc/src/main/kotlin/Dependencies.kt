@@ -18,5 +18,8 @@ object Libs {
         const val core = "io.ktor:ktor-server-core:${Versions.ktor}"
         const val netty = "io.ktor:ktor-server-netty:${Versions.ktor}"
         const val serialization = "io.ktor:ktor-serialization:${Versions.ktor}"
+        const val `client-core` = "io.ktor:ktor-client-core:${Versions.ktor}"
+        const val `client-engine-cio` = "io.ktor:ktor-client-cio:${Versions.ktor}"
+        const val `client-serialization` = "io.ktor:ktor-client-serialization-jvm:${Versions.ktor}"
     }
 }

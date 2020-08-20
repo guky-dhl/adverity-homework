@@ -22,7 +22,7 @@ internal class LoadStatisticShould : RepositoryTest() {
     internal fun setUp() {
         inTestTransaction {
             SchemaUtils.dropCreate(MarketingCampaignStatistic.Table)
-            loadStatistic = LoadStatistic(campaignStatistics)
+            loadStatistic = LoadStatistic(campaignStatistics, db)
         }
     }
 
