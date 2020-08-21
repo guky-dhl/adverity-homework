@@ -13,12 +13,7 @@ version = "0.1"
 repositories {
     mavenCentral()
     jcenter()
-    maven("https://maven.pkg.github.com/guky-dhl/exposed-entities") {
-        credentials {
-            username = "guky-dhl"
-            password = "c60e8d8efc007788e0ac20ac183b2c85e64656af" //read only token
-        }
-    }
+    maven("https://dl.bintray.com/guky-dhl/kotlin-exposed-entities-alfa")
 }
 
 dependencies {
@@ -33,7 +28,7 @@ dependencies {
     implementation(Libs.exposed.core)
     implementation(Libs.exposed.jdbc)
     implementation(Libs.exposed.`java-time`)
-    implementation("cool.db:exposed-entities:0.0.3")
+    implementation("cool.db:kotlin-exposed-entities-alfa:0.0.3")
     implementation(Libs.postgre)
     implementation("com.h2database:h2:1.4.199")
 
