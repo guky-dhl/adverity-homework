@@ -28,6 +28,7 @@ Post request: ``` http://homework-adverity-homework.apps.ca-central-1.starter.op
 ### Limitations/ place to improve:
 * Currently, filters concatenated by AND would be nice to have OR (Wrap in `And` and `Or` structures on parsing like Calculated field )
 It was not done since solution already covers use requests, and I'm trying to follow [YAGNI](https://martinfowler.com/bliki/Yagni.html) principles
+* Add result ordering
 * Analyze data usage and create data index(Collect statistic on usage and make most effective indexes)
 * Liveness, Readiness and Startup probes for CD process since now it will be marked as successful even application didn't start up 
 * More test(different dimensions, filters and group by combinations) since code paid high tax of abstraction to be flexible
