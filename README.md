@@ -1,12 +1,13 @@
 # adverity-homework
 
-### Used technology stuck:
+### Used technology stuck/some details:
 * Programming language: Kotlin
 * Web request handling: [Ktor](https://ktor.io)
 * Database: H2 for test/local and Postgrtes(hosted on open shift) for deployed application
 * Database access: [Kotlin exposed](https://github.com/JetBrains/Exposed) + 
 some self developed additions [kotlin entities](https://github.com/guky-dhl/exposed-entities) 
 * Json: [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization)
+* Data reloaded at each start up from file in resources to simplify delivery process(skip scheme migration tools like Flyway or liquibase)
 
 ### Running locally
 ```Execute main method from Application.kt  it will start listening on localhost with port 8383```
@@ -22,7 +23,14 @@ Post request: ``` http://homework-adverity-homework.apps.ca-central-1.starter.op
     * Build jar by gradle and ShodowJar plugin
     * Build docker image from [Dockerfile](https://github.com/guky-dhl/adverity-homework/blob/master/Dockerfile)
     and push image to docker hub
-    * Import docker image to open shift with an automatic rollout to nodes on new images(atm single node)
+    * Import docker image to open shift with an automatic rollout to nodes(atm single node) on new images(Open shift image stream)
+
+### Limitations/ place to improve:
+* Currently, filters concatenated by AND would be nice to have OR (Wrap in `And` and `Or` structures on parsing like Calculated field )
+It was not done since solution already covers use requests, and I'm trying to follow [YAGNI](https://martinfowler.com/bliki/Yagni.html) principles
+* Analyze data usage and create data index(Collect statistic on usage and make most effective indexes)
+* Liveness, Readiness and Startup probes for CD process since now it will be marked as successful even application didn't start up 
+* More test(different dimensions, filters and group by combinations) since code paid high tax of abstraction to be flexible
     
 ## Api description
 Api is based on single endpoint ```POST /marketing-data ```
