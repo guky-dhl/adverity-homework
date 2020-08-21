@@ -2,6 +2,7 @@ package homework
 
 import homework.api.MarketingStatisticController
 import homework.api.PingController
+import homework.api.dto.ErrorResponse
 import homework.domain.LoadStatistic
 import homework.domain.MarketingCampaignStatistic
 import homework.domain.MarketingCampaignStatisticRepository
@@ -12,8 +13,10 @@ import homework.infrastructure.isProd
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.response.*
 import io.ktor.serialization.*
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.serialization.SerializationException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -21,6 +24,7 @@ import org.koin.dsl.module
 
 fun mainModule(application: Application) = module(createdAtStart = true) {
     installJson(application)
+    installErrorHandling(application)
     single { application }
     single { application.environment }
     single { MarketingCampaignStatisticRepository() }
@@ -37,6 +41,18 @@ private fun installJson(application: Application) {
             contentType = ContentType.Application.Json
         )
     }
+}
+
+private fun installErrorHandling(application: Application) {
+    application.install(StatusPages) {
+        exception<SerializationException> { cause ->
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(cause.message))
+        }
+        exception<Exception> { cause ->
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(cause.message))
+        }
+    }
+
 }
 
 @OptIn(KtorExperimentalAPI::class)
