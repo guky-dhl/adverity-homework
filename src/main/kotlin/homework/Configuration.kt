@@ -13,6 +13,7 @@ import homework.infrastructure.isProd
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.serialization.*
 import io.ktor.util.KtorExperimentalAPI
@@ -21,10 +22,12 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.dsl.module
+import org.slf4j.event.Level
 
 fun mainModule(application: Application) = module(createdAtStart = true) {
     installJson(application)
     installErrorHandling(application)
+    installCallLogging(application)
     single { application }
     single { application.environment }
     single { MarketingCampaignStatisticRepository() }
@@ -52,6 +55,15 @@ private fun installErrorHandling(application: Application) {
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(cause.message))
         }
     }
+
+}
+
+private fun installCallLogging(application: Application) {
+    application.install(CallLogging) {
+        level = Level.INFO
+        filter { call -> call.request.path().startsWith("/marketing-data") }
+    }
+
 
 }
 
