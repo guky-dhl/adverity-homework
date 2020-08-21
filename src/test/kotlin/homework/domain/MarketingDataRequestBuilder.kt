@@ -1,17 +1,15 @@
 package homework.domain
 
-import homework.api.dto.Field
-import homework.api.dto.Field.*
-import homework.api.dto.Field.AggregateField.AggregationType.*
-import homework.api.dto.Field.CalculatedField.CalculationType.DIVIDE
-import homework.api.dto.Field.CalculatedField.CalculationType.TIMES
-import homework.api.dto.Field.SimpleField.*
 import homework.api.dto.Filter
 import homework.api.dto.Filter.DateFilter
 import homework.api.dto.Filter.StringFilter
 import homework.api.dto.FilterOperation
 import homework.api.dto.FilterOperation.BETWEEN
 import homework.api.dto.MarketingDataRequest
+import homework.api.dto.field.*
+import homework.api.dto.field.AggregateField.AggregationType.*
+import homework.api.dto.field.CalculatedField.CalculationType.DIVIDE
+import homework.api.dto.field.CalculatedField.CalculationType.TIMES
 import homework.infrastructure.asDecimal
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -128,8 +126,6 @@ fun selectDate(property: KProperty1<MarketingCampaignStatistic, LocalDate>): Dat
 fun selectDate(value: LocalDate): DateField = DateField(value = value)
 
 fun selectLong(property: KProperty1<MarketingCampaignStatistic, Long>): LongField = LongField(property.name)
-
-fun selectLong(value: Long): LongField = LongField(value = value)
 
 fun selectDecimal(value: Int): DecimalField = DecimalField(value = value.asDecimal())
 

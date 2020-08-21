@@ -1,7 +1,7 @@
 package homework.domain
 
-import homework.api.dto.Field.SimpleField.DateField
-import homework.api.dto.Field.SimpleField.LongField
+import homework.api.dto.field.DateField
+import homework.api.dto.field.LongField
 import homework.api.dto.FilterOperation.*
 import homework.infrastructure.RepositoryTest
 import homework.infrastructure.TestSubject

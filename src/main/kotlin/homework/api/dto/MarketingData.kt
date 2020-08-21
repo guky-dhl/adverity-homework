@@ -2,7 +2,10 @@
 
 package homework.api.dto
 
-import homework.api.dto.Field.SimpleField
+import homework.api.dto.field.AggregateField
+import homework.api.dto.field.CalculatedField
+import homework.api.dto.field.Field
+import homework.api.dto.field.SimpleField
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
@@ -28,16 +31,16 @@ data class MarketingDataRequest(
 
     private fun containsAggregate(field: Field<*>): Boolean {
         return when (field) {
-            is Field.AggregateField -> true
-            is Field.CalculatedField -> containsAggregate(field.first) || containsAggregate(field.second)
+            is AggregateField -> true
+            is CalculatedField -> containsAggregate(field.first) || containsAggregate(field.second)
             else -> false
         }
     }
 
     private fun findColumns(field: Field<*>): List<Field<*>> {
         return when (field) {
-            is Field.AggregateField -> listOf()
-            is Field.CalculatedField -> findColumns(field.first) + findColumns(field.second)
+            is AggregateField -> listOf()
+            is CalculatedField -> findColumns(field.first) + findColumns(field.second)
             else -> if (field.isColumn()) listOf(field) else listOf()
         }
     }

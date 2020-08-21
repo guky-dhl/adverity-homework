@@ -1,6 +1,6 @@
 package homework.api
 
-import homework.api.dto.Field.SimpleField.DateField
+import homework.api.dto.field.DateField
 import homework.api.dto.FilterOperation.BETWEEN
 import homework.api.dto.FilterOperation.EQ
 import homework.api.dto.MarketingDataResponse

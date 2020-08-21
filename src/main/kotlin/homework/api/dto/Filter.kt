@@ -2,9 +2,10 @@
 
 package homework.api.dto
 
-import homework.api.dto.Field.*
-import homework.api.dto.Field.SimpleField.StringField
 import homework.api.dto.FilterOperation.*
+import homework.api.dto.field.DateField
+import homework.api.dto.field.Field
+import homework.api.dto.field.StringField
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
@@ -87,9 +88,9 @@ sealed class Filter<T : Comparable<T>> {
     @SerialName("DateFilter")
     data class DateFilter(
         override val operator: FilterOperation,
-        override val first: SimpleField.DateField,
-        override val second: SimpleField.DateField?,
-        override val max: SimpleField.DateField? = null,
+        override val first: DateField,
+        override val second: DateField?,
+        override val max: DateField? = null,
         override val valueSet: Set<LocalDate> = setOf()
     ) : Filter<LocalDate>() {
         init {

@@ -1,5 +1,6 @@
 package homework.infrastructure
 
+import homework.api.dto.field.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -18,6 +19,12 @@ val json = Json {
     serializersModule = SerializersModule {
         contextual(LocalDate::class, LocalDateSerializer)
         contextual(BigDecimal::class, BigDecimalSerializer)
+        polymorphic(Field::class, CalculatedField::class, CalculatedField.serializer())
+        polymorphic(Field::class, AggregateField::class, AggregateField.serializer())
+        polymorphic(Field::class, LongField::class, LongField.serializer())
+        polymorphic(Field::class, DateField::class, DateField.serializer())
+        polymorphic(Field::class, DecimalField::class, DecimalField.serializer())
+        polymorphic(Field::class, StringField::class, StringField.serializer())
     }
 }
 
