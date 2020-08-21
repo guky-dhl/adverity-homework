@@ -2,6 +2,7 @@
 
 package homework.api.dto
 
+import homework.api.dto.Field.SimpleField
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
@@ -43,4 +44,4 @@ data class MarketingDataRequest(
 }
 
 @Serializable
-data class MarketingDataResponse(val result: List<Set<Field.SimpleField<*>>>)
+data class MarketingDataResponse(val result: List<Set<SimpleField<*>>>)

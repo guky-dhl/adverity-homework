@@ -51,6 +51,7 @@ internal class MarketingStatisticControllerShould : ApiTest() {
                 body = marketingDataRequest
             }
         }
+
         response.result.shouldHaveSize(1)
         response.result.single().single().value shouldBe 25784.asDecimal()
     }
@@ -79,6 +80,7 @@ internal class MarketingStatisticControllerShould : ApiTest() {
                 body = marketingDataRequest
             }
         }
+
         response.result.shouldHaveSize(1)
         response.result.single().single().value shouldBe 1.2554.asDecimal()
     }
@@ -98,6 +100,7 @@ internal class MarketingStatisticControllerShould : ApiTest() {
                 body = marketingDataRequest
             }
         }
+
         response.result.shouldHaveSize(410)
         val recordAtRandomDate =
             response.result.single { (it.single { it is DateField }.value as LocalDate) == randomDate }

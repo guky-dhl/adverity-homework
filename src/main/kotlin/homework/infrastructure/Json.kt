@@ -14,6 +14,7 @@ import java.time.LocalDate
 val json = Json {
     isLenient = true
     encodeDefaults = false
+    prettyPrint = true
     serializersModule = SerializersModule {
         contextual(LocalDate::class, LocalDateSerializer)
         contextual(BigDecimal::class, BigDecimalSerializer)
